@@ -3,7 +3,6 @@ import {
   FlatList,
   Image,
   Modal,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -14,18 +13,15 @@ import {
   Card,
   Icon,
   Icons,
-  InfoRow,
   PrimaryButton,
   ScreenFrame,
   StatusPill,
-  TextButton,
 } from '@/features/correctai/components/ui';
-import { classes, exams } from '@/features/correctai/data/mock-data';
+import { exams } from '@/features/correctai/data/mock-data';
 import { correctAiTheme } from '@/features/correctai/theme';
-import type { AppScreen, ClassRoom, Exam, ScannedCopy, TabId, Tone } from '@/features/correctai/types';
+import type { AppScreen, ClassRoom, Exam, ScannedCopy, TabId } from '@/features/correctai/types';
 import {
   buildCopyCorrectionSummary,
-  formatDelimitedClassName,
   formatScannedCopyDateTime,
   formatScoreValue,
   reviewStatusLabel,

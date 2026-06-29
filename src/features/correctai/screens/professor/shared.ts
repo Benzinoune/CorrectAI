@@ -6,8 +6,7 @@ import type {
   ClassRoom,
   Exam,
   ExamQuestion,
-  ExamStatus,
-  NavItem,
+  TabId,
   Professor,
   ResponseSheetId,
   ScannedCopy,
@@ -21,7 +20,7 @@ import type {
 const { colors, spacing, radius } = correctAiTheme;
 
 export type ProfessorScreenProps = {
-  activeTab: NavItem['id'];
+  activeTab: TabId;
   onNavigate: (screen: AppScreen) => void;
   selectedStudent?: Student | null;
   selectedClass?: ClassRoom | null;
@@ -55,13 +54,6 @@ export type ProfessorScreenProps = {
   studentsData?: Student[];
 };
 
-export function examTone(status: ExamStatus): Tone {
-  if (status === 'ACTIF') return 'success';
-  if (status === 'EN COURS') return 'info';
-  if (status === 'A VENIR') return 'warning';
-  return 'neutral';
-}
-
 import { normalizeSearch, tabPress } from '@/features/correctai/utils';
 export { normalizeSearch, tabPress };
 
@@ -90,12 +82,6 @@ export function formatScannedCopyDateTime(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' });
-}
-
-export function buildInitialsFromName(value: string) {
-  const parts = value.trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return '??';
-  return parts.slice(0, 2).map((part) => part.charAt(0)).join('').toUpperCase();
 }
 
 export function reviewStatusLabel(status: ScannedCopy['reviewStatus']) {
@@ -195,10 +181,6 @@ export function answersMatch(expected: string[] | undefined, actual: string | un
   if (!normalizedExpected.length && !normalizedActual.length) return false;
   if (normalizedExpected.length !== normalizedActual.length) return false;
   return normalizedExpected.every((answer, index) => answer === normalizedActual[index]);
-}
-
-export function escapeHtml(value: string) {
-  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 export function formatExamDateForStorage(value: Date) {
@@ -317,6 +299,56 @@ export function buildCopyCorrectionSummary(exam: Exam, copy: ScannedCopy): CopyC
   const percentage = maxPoints > 0 ? Math.round((totalPoints / maxPoints) * 100) : 0;
   const reviewedAt = copy.metadata?.reviewedAt ?? copy.metadata?.processedAt ?? copy.scannedAt;
   return { rows, totalPoints, maxPoints, percentage, reviewedAt };
+}
+
+export type StudentFormValues = {
+  firstName: string;
+  lastName: string;
+  matricule: string;
+  email: string;
+  password: string;
+};
+
+export type StudentFormErrors = Partial<Record<keyof StudentFormValues, string>>;
+
+export const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export function validateStudentForm(
+  values: StudentFormValues,
+  options?: { requirePassword?: boolean; existingStudents?: { matricule: string; email: string; id?: string }[]; currentId?: string },
+) {
+  const errors: StudentFormErrors = {};
+  const { requirePassword = true, existingStudents = [], currentId } = options ?? {};
+
+  if (!values.firstName.trim()) {
+    errors.firstName = 'Le prénom est requis.';
+  }
+
+  if (!values.lastName.trim()) {
+    errors.lastName = 'Le nom est requis.';
+  }
+
+  if (!values.matricule.trim()) {
+    errors.matricule = 'Le matricule est requis.';
+  } else if (existingStudents.some((s) => s.matricule === values.matricule.trim() && s.id !== currentId)) {
+    errors.matricule = 'Ce matricule existe déjà.';
+  }
+
+  if (!values.email.trim()) {
+    errors.email = 'L\'email est requis.';
+  } else if (!emailPattern.test(values.email.trim().toLowerCase())) {
+    errors.email = 'Entrez une adresse email valide.';
+  } else if (existingStudents.some((s) => s.email.toLowerCase() === values.email.trim().toLowerCase() && s.id !== currentId)) {
+    errors.email = 'Cet email existe déjà.';
+  }
+
+  if (requirePassword && !values.password.trim()) {
+    errors.password = 'Le mot de passe est requis.';
+  } else if (values.password.trim() && values.password.trim().length < 6) {
+    errors.password = 'Le mot de passe doit contenir au moins 6 caractères.';
+  }
+
+  return errors;
 }
 
 export const styles = StyleSheet.create({

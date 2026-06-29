@@ -23,6 +23,7 @@ import {
   getResponseSheetOption,
   normalizeSearch,
   ProfessorScreenProps,
+  responseSheetOptions,
   styles as sharedStyles,
 } from './shared';
 
@@ -180,12 +181,6 @@ function ResponseSheetPickerModal({
   if (!visible) {
     return null;
   }
-
-  const responseSheetOptions = [
-    { id: '20' as ResponseSheetId, label: '20 Questions', questions: 20 },
-    { id: '50' as ResponseSheetId, label: '50 Questions', questions: 50 },
-    { id: '100' as ResponseSheetId, label: '100 Questions', questions: 100 },
-  ];
 
   return (
     <Modal animationType="fade" onRequestClose={onCancel} statusBarTranslucent transparent visible>

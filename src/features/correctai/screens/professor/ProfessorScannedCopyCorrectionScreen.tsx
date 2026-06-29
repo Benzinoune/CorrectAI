@@ -12,7 +12,8 @@ import {
 
 import { Icon, Icons, PrimaryButton, ScreenFrame, StatusPill, TextButton } from '@/features/correctai/components/ui';
 import { correctAiTheme } from '@/features/correctai/theme';
-import type { AppScreen, ClassRoom, Exam, ScannedCopy, Tone } from '@/features/correctai/types';
+import type { AppScreen, ClassRoom, Exam, ScannedCopy } from '@/features/correctai/types';
+import { answerSheetChoices, reviewStatusTone } from './shared';
 
 const { colors, radius, spacing } = correctAiTheme;
 
@@ -26,8 +27,6 @@ type Props = {
   selectedExam?: Exam | null;
   selectedScannedCopy?: ScannedCopy | null;
 };
-
-const choices = ['A', 'B', 'C', 'D', 'E'] as const;
 
 function parseAnswerToken(value: string | undefined) {
   if (!value) return [];
@@ -43,14 +42,6 @@ function reviewStatusLabel(status: ScannedCopy['reviewStatus']) {
     case 'VALIDATED': return 'Validée';
     case 'CORRECTED': return 'Corrigée';
     default: return 'Détectée';
-  }
-}
-
-function reviewStatusTone(status: ScannedCopy['reviewStatus']): Tone {
-  switch (status) {
-    case 'VALIDATED': return 'success';
-    case 'CORRECTED': return 'primary';
-    default: return 'warning';
   }
 }
 
@@ -332,7 +323,7 @@ export function ProfessorScannedCopyCorrectionScreen({
                   {!modifiedQuestions.has(row.number) && row.status === 'unanswered' && <StatusPill label="Vide" tone="neutral" />}
                 </View>
                 <View style={styles.answerBubbleRow}>
-                  {choices.map((choice) => {
+                  {answerSheetChoices.map((choice) => {
                     const answers = parseAnswerToken(localAnswers[row.number - 1]);
                     const isActive = answers.includes(choice);
                     const bc = isActive ? sc : statusColors('unanswered');

@@ -22,76 +22,17 @@ import { classes, students } from '@/features/correctai/data/mock-data';
 import { correctAiTheme } from '@/features/correctai/theme';
 import type { Student } from '@/features/correctai/types';
 import {
+  emailPattern,
   ProfessorScreenProps,
   resolveSelectedClassIds,
+  StudentFormErrors,
+  StudentFormValues,
   studentDisplayName,
+  validateStudentForm,
 } from './shared';
+import { StudentFormField } from './shared-components';
 
 const { colors, spacing, radius } = correctAiTheme;
-
-type StudentFormValues = {
-  firstName: string;
-  lastName: string;
-  matricule: string;
-  email: string;
-  password: string;
-};
-
-type StudentFormErrors = Partial<Record<keyof StudentFormValues, string>>;
-
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function validateStudentForm(
-  values: StudentFormValues,
-  options?: { requirePassword?: boolean; existingStudents?: { matricule: string; email: string; id?: string }[]; currentId?: string },
-) {
-  const errors: StudentFormErrors = {};
-  const { requirePassword = true, existingStudents = [], currentId } = options ?? {};
-
-  if (!values.firstName.trim()) {
-    errors.firstName = 'Le prénom est requis.';
-  }
-
-  if (!values.lastName.trim()) {
-    errors.lastName = 'Le nom est requis.';
-  }
-
-  if (!values.matricule.trim()) {
-    errors.matricule = 'Le matricule est requis.';
-  } else if (existingStudents.some((s) => s.matricule === values.matricule.trim() && s.id !== currentId)) {
-    errors.matricule = 'Ce matricule existe déjà.';
-  }
-
-  if (!values.email.trim()) {
-    errors.email = 'L\'email est requis.';
-  } else if (!emailPattern.test(values.email.trim().toLowerCase())) {
-    errors.email = 'Entrez une adresse email valide.';
-  } else if (existingStudents.some((s) => s.email.toLowerCase() === values.email.trim().toLowerCase() && s.id !== currentId)) {
-    errors.email = 'Cet email existe déjà.';
-  }
-
-  if (requirePassword && !values.password.trim()) {
-    errors.password = 'Le mot de passe est requis.';
-  } else if (values.password.trim() && values.password.trim().length < 6) {
-    errors.password = 'Le mot de passe doit contenir au moins 6 caractères.';
-  }
-
-  return errors;
-}
-
-function StudentFormField({
-  label,
-  error,
-  style,
-  ...props
-}: TextInputProps & { label: string; error?: string }) {
-  return (
-    <View style={styles.studentFormFieldGroup}>
-      <Field label={label} style={[styles.studentFormInput, error && styles.studentFormInputError, style]} {...props} />
-      {error ? <Text style={styles.studentFormError}>{error}</Text> : null}
-    </View>
-  );
-}
 
 export function ProfessorStudentEditScreen({
   onNavigate,
