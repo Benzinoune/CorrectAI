@@ -1,0 +1,11 @@
+export { SuperAdminHomeScreen } from './SuperAdminHomeScreen';
+export { SuperAdminEstablishmentsScreen } from './SuperAdminEstablishmentsScreen';
+export { SuperAdminEstablishmentDetailScreen } from './SuperAdminEstablishmentDetailScreen';
+export { SuperAdminNewEstablishmentScreen } from './SuperAdminNewEstablishmentScreen';
+export { SuperAdminEstablishmentSettingsScreen } from './SuperAdminEstablishmentSettingsScreen';
+export { SuperAdminAdminsScreen } from './SuperAdminAdminsScreen';
+export { SuperAdminAdminDetailScreen } from './SuperAdminAdminDetailScreen';
+export { SuperAdminNewAdminScreen } from './SuperAdminNewAdminScreen';
+export { SuperAdminProfessorsScreen } from './SuperAdminProfessorsScreen';
+export { SuperAdminProfessorDetailScreen } from './SuperAdminProfessorDetailScreen';
+export { SuperAdminNewProfessorScreen } from './SuperAdminNewProfessorScreen';

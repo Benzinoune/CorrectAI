@@ -1,0 +1,43 @@
+export const correctAiTheme = {
+  colors: {
+    primary: '#6C5CFF',
+    primaryDark: '#5646E8',
+    primarySoft: '#EEEAFE',
+    screen: '#F3F5FA',
+    card: '#FFFFFF',
+    ink: '#121422',
+    muted: '#657084',
+    faint: '#A1A7B4',
+    border: '#E4E8F0',
+    success: '#00B884',
+    successSoft: '#DDF9EA',
+    warning: '#F2A000',
+    warningSoft: '#FFF0D8',
+    danger: '#F04452',
+    dangerSoft: '#FDEAE6',
+    info: '#2F80D1',
+    infoSoft: '#E5F1FF',
+    neutralSoft: '#ECEAE4',
+    neutralText: '#5F5B52',
+    purpleAvatar: '#EEEAFE',
+    orangeAvatar: '#F3A261',
+  },
+  radius: {
+    xs: 8,
+    sm: 10,
+    md: 14,
+    lg: 18,
+    xl: 24,
+  },
+  spacing: {
+    xxs: 4,
+    xs: 8,
+    sm: 12,
+    md: 16,
+    lg: 20,
+    xl: 24,
+    xxl: 32,
+  },
+} as const;
+
+export const phoneMaxWidth = 440;
