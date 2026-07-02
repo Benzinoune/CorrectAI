@@ -12,6 +12,26 @@ export type ResponseSheetId = '20' | '50' | '100';
 
 export type ScannedCopyReviewStatus = 'PENDING' | 'DETECTED' | 'VALIDATED' | 'CORRECTED';
 
+export type OCRExtractionResult = {
+  extracted: boolean;
+  name: string | null;
+  matricule: string | null;
+  className: string | null;
+  confidence: number;
+  missingFields: string[];
+};
+
+export type OMRDetectionAnswer = {
+  question: number;
+  answer: string | null;
+  confidence: number;
+};
+
+export type OMRDetectionResult = {
+  detected: boolean;
+  answers: OMRDetectionAnswer[];
+};
+
 export type TabId =
   | 'home'
   | 'establishments'
@@ -196,11 +216,14 @@ export type ScannedCopy = {
   scannedAt: string;
   establishmentId: string;
   imageUri?: string;
+  annotatedImageUri?: string;
   aiConfidence: number;
   reviewStatus: ScannedCopyReviewStatus;
   detectedAnswers: string[];
   detectedAnswersCount: number;
   calculatedScore?: string;
+  ocrResult?: OCRExtractionResult;
+  omrResult?: OMRDetectionResult;
   metadata?: {
     source: 'scanner';
     processedAt: string;
@@ -211,7 +234,7 @@ export type ScannedCopy = {
 export type ScannedCopyDraft = Partial<
   Pick<
     ScannedCopy,
-    'studentName' | 'matricule' | 'className' | 'aiConfidence' | 'detectedAnswers' | 'detectedAnswersCount' | 'calculatedScore' | 'imageUri'
+    'studentName' | 'matricule' | 'className' | 'aiConfidence' | 'detectedAnswers' | 'detectedAnswersCount' | 'calculatedScore' | 'imageUri' | 'annotatedImageUri' | 'ocrResult' | 'omrResult'
   >
 > & {
   metadata?: Partial<NonNullable<ScannedCopy['metadata']>>;

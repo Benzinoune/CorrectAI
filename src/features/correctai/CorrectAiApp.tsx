@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import {
   AdminHomeScreen,
@@ -157,6 +157,18 @@ function cloneScannedCopy(copy: ScannedCopy): ScannedCopy {
   return {
     ...copy,
     detectedAnswers: [...copy.detectedAnswers],
+    ocrResult: copy.ocrResult
+      ? {
+          ...copy.ocrResult,
+          missingFields: [...copy.ocrResult.missingFields],
+        }
+      : undefined,
+    omrResult: copy.omrResult
+      ? {
+          ...copy.omrResult,
+          answers: copy.omrResult.answers.map((answer) => ({ ...answer })),
+        }
+      : undefined,
     metadata: copy.metadata ? { ...copy.metadata } : undefined,
   };
 }
@@ -218,6 +230,22 @@ function buildMockScannedCopies(exam: Exam): ScannedCopy[] {
     detectedAnswers: questionPattern,
     detectedAnswersCount: questionPattern.length,
     calculatedScore: index === 0 ? `0/${exam.questions}` : undefined,
+    ocrResult: {
+      extracted: true,
+      name: index === 0 ? null : names[index % names.length],
+      matricule: matricules[index % matricules.length] === '0' ? null : matricules[index % matricules.length],
+      className: exam.className,
+      confidence: confidenceLevels[index % confidenceLevels.length],
+      missingFields: [],
+    },
+    omrResult: {
+      detected: true,
+      answers: questionPattern.map((answer, questionIndex) => ({
+        question: questionIndex + 1,
+        answer: answer || null,
+        confidence: answer ? 82 : 0,
+      })),
+    },
     metadata: {
       source: 'scanner',
       processedAt: new Date(Date.UTC(2026, 4, 20, 8, 45 + index * 4)).toISOString(),
@@ -328,7 +356,7 @@ function buildCorrectAiId() {
 }
 
 export function CorrectAiApp() {
-  const [screen, setScreen] = useState<AppScreen>('splash');
+  const [screen, setScreen] = useState<AppScreen>(() => 'splash');
   const [establishmentsData, setEstablishmentsData] = useState<Establishment[]>(() =>
     initialEstablishments.map(cloneEstablishment),
   );
@@ -410,6 +438,20 @@ export function CorrectAiApp() {
       null
     );
   }, [selectedExamForRender, selectedScannedCopy]);
+
+  useEffect(() => {
+    if (!selectedExamForRender) {
+      return;
+    }
+
+    console.log(
+      '[App] render state: screen=%s examId=%s copyCount=%d selectedCopyId=%s',
+      screen,
+      selectedExamForRender.id,
+      selectedExamForRender.scannedCopies?.length ?? 0,
+      selectedScannedCopyForRender?.id ?? 'none',
+    );
+  }, [screen, selectedExamForRender, selectedScannedCopyForRender]);
 
   const navigate = (nextScreen: AppScreen) => {
     setScreen(nextScreen);
@@ -677,10 +719,18 @@ export function CorrectAiApp() {
       return null;
     }
 
+    console.log(
+      '[App] registerExamScan: examId=%s existingCopies=%d',
+      selectedExam.id,
+      selectedExam.scannedCopies?.length ?? 0,
+    );
+
     const existingCopies = selectedExam.scannedCopies ?? [];
     const nextCopyNumber = existingCopies.length + 1;
     const detectedAnswers =
-      draft?.detectedAnswers ?? buildMockDetectedAnswers(selectedExam.questions).map((answers) => answers.join('+'));
+      draft?.detectedAnswers ??
+      draft?.omrResult?.answers?.map((answer) => answer.answer ?? '') ??
+      buildMockDetectedAnswers(selectedExam.questions).map((answers) => answers.join('+'));
     const confidenceLevels = [28, 94, 91, 61, 83, 74, 68, 88];
     const names = ['Non identifié', 'Khawla Lali', 'Aicha Zeraodi', 'Halima Fouti', 'Yanis Ziani', 'Nadia Belaid'];
     const matricules = ['0', '14365', '33624', '10390', '1944', '1951'];
@@ -688,19 +738,46 @@ export function CorrectAiApp() {
       id: `copy-${selectedExam.id}-${Date.now().toString(36)}-${nextCopyNumber}`,
       examId: selectedExam.id,
       examName: selectedExam.name,
-      studentName: draft?.studentName?.trim() || 'À extraire plus tard',
-      matricule: draft?.matricule?.trim() || 'À extraire plus tard',
+      studentName: draft?.ocrResult?.name?.trim() || draft?.studentName?.trim() || 'À extraire plus tard',
+      matricule: draft?.ocrResult?.matricule?.trim() || draft?.matricule?.trim() || 'À extraire plus tard',
       className: selectedExam.classIds?.length
         ? classNamesFromIds(selectedExam.classIds, classesWithCounts).join(', ')
-        : selectedExam.className,
+        : draft?.ocrResult?.className?.trim() || draft?.className?.trim() || selectedExam.className,
       scannedAt: new Date().toISOString(),
       establishmentId: selectedExam.establishmentId ?? '',
       imageUri: draft?.imageUri,
+      annotatedImageUri: draft?.annotatedImageUri,
       aiConfidence: draft?.aiConfidence ?? confidenceLevels[(nextCopyNumber - 1) % confidenceLevels.length],
-      reviewStatus: 'PENDING',
+      reviewStatus: 'DETECTED',
       detectedAnswers,
       detectedAnswersCount: draft?.detectedAnswersCount ?? detectedAnswers.length,
       calculatedScore: draft?.calculatedScore ?? '--',
+      ocrResult: draft?.ocrResult
+        ? {
+            ...draft.ocrResult,
+            missingFields: [...draft.ocrResult.missingFields],
+          }
+        : {
+            extracted: true,
+            name: draft?.studentName?.trim() || 'À extraire plus tard',
+            matricule: draft?.matricule?.trim() || 'À extraire plus tard',
+            className: draft?.className?.trim() || selectedExam.className,
+            confidence: draft?.aiConfidence ?? confidenceLevels[(nextCopyNumber - 1) % confidenceLevels.length],
+            missingFields: [],
+          },
+      omrResult: draft?.omrResult
+        ? {
+            ...draft.omrResult,
+            answers: draft.omrResult.answers.map((answer) => ({ ...answer })),
+          }
+        : {
+            detected: detectedAnswers.length > 0,
+            answers: detectedAnswers.map((answer, index) => ({
+              question: index + 1,
+              answer: answer || null,
+              confidence: answer ? 82 : 0,
+            })),
+          },
       metadata: {
         source: 'scanner',
         processedAt: new Date().toISOString(),
@@ -713,12 +790,22 @@ export function CorrectAiApp() {
       copies: nextScannedCopies.length,
       scannedCopies: nextScannedCopies,
     });
+    const persistedCopy = nextExam.scannedCopies?.[nextExam.scannedCopies.length - 1] ?? nextCopy;
 
     setExamsData((currentExams) => currentExams.map((exam) => (exam.id === nextExam.id ? nextExam : exam)));
     setSelectedExam(nextExam);
-    setSelectedScannedCopy(nextCopy);
+    setSelectedScannedCopy(persistedCopy);
 
-    return nextCopy;
+    console.log(
+      '[App] registerExamScan: persistedCopyId=%s totalCopies=%d student=%s matricule=%s status=%s',
+      persistedCopy.id,
+      nextExam.scannedCopies?.length ?? 0,
+      persistedCopy.studentName,
+      persistedCopy.matricule,
+      persistedCopy.reviewStatus,
+    );
+
+    return persistedCopy;
   };
 
   const registerAnswerKeyScan = () => {

@@ -68,6 +68,28 @@ export function ProfessorScannedCopyDetailScreen({
     );
   }, [exam, selectedScannedCopy]);
 
+  useEffect(() => {
+    if (!copy) {
+      console.log('[CopyDetail] render state: no copy selected');
+      return;
+    }
+
+    console.log(
+      '[CopyDetail] loaded persisted copy: copyId=%s examId=%s examName=%s student=%s matricule=%s class=%s score=%s scannedAt=%s hasAnnotated=%s hasOCR=%s hasOMR=%s',
+      copy.id,
+      copy.examId,
+      copy.examName,
+      copy.studentName,
+      copy.matricule,
+      copy.className,
+      copy.calculatedScore ?? '--',
+      copy.scannedAt,
+      Boolean(copy.annotatedImageUri),
+      Boolean(copy.ocrResult),
+      Boolean(copy.omrResult),
+    );
+  }, [copy]);
+
   const correctionSummary = useMemo(() => (exam && copy ? buildCopyCorrectionSummary(exam, copy) : null), [copy, exam]);
   const detailTabs: { id: CopyDetailTab; label: string }[] = [
     { id: 'image', label: 'IMAGE' },
@@ -251,9 +273,9 @@ export function ProfessorScannedCopyDetailScreen({
                 nestedScrollEnabled
               >
                 <View style={{ width: previewWidth || 300, height: previewWidth ? previewWidth * 1.4 : 400, backgroundColor: '#000', overflow: 'hidden' }}>
-                  {copy.imageUri ? (
+                  {copy.annotatedImageUri || copy.imageUri ? (
                     <Image
-                      source={{ uri: copy.imageUri }}
+                      source={{ uri: copy.annotatedImageUri ?? copy.imageUri }}
                       resizeMode="contain"
                       style={{ width: '100%', height: '100%' }}
                     />
@@ -310,6 +332,18 @@ export function ProfessorScannedCopyDetailScreen({
                 <InfoRow label="Nom complet" value={copy.studentName} />
                 <InfoRow label="Matricule" value={copy.matricule} />
                 <InfoRow label="Classe" value={formatDelimitedClassName(copy.className, classList)} />
+                <InfoRow
+                  label="OCR"
+                  value={`${copy.ocrResult?.name ?? copy.studentName} · ${copy.ocrResult?.matricule ?? copy.matricule}`}
+                />
+                <InfoRow
+                  label="OMR"
+                  value={
+                    copy.omrResult
+                      ? `${copy.omrResult.answers.filter((answer) => Boolean(answer.answer)).length}/${copy.omrResult.answers.length} réponses`
+                      : `${copy.detectedAnswersCount} réponses détectées`
+                  }
+                />
                 <InfoRow label="Examen" value={copy.examName} />
                 <InfoRow label="Date d'analyse" value={formatScannedCopyDateTime(copy.metadata?.processedAt ?? copy.scannedAt)} />
                 <InfoRow label="Statut" value={reviewStatusLabel(copy.reviewStatus)} />

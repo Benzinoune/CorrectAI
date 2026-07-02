@@ -88,6 +88,7 @@ export function reviewStatusLabel(status: ScannedCopy['reviewStatus']) {
   switch (status) {
     case 'VALIDATED': return 'Validée';
     case 'CORRECTED': return 'Corrigée';
+    case 'DETECTED': return 'Détectée';
     default: return 'À vérifier';
   }
 }

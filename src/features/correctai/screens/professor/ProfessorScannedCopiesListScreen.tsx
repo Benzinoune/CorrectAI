@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   FlatList,
   Image,
@@ -46,7 +46,7 @@ type ReviewSort = 'date-desc' | 'date-asc' | 'score-desc' | 'name-asc';
 function calculateReviewMetrics(copies: ScannedCopy[]) {
   const total = copies.length;
   if (total === 0) return { total: 0, pending: 0, corrected: 0, validated: 0, averageScore: 0 };
-  const pending = copies.filter((c) => c.reviewStatus === 'DETECTED').length;
+  const pending = copies.filter((c) => c.reviewStatus === 'DETECTED' || c.reviewStatus === 'PENDING').length;
   const corrected = copies.filter((c) => c.reviewStatus === 'CORRECTED').length;
   const validated = copies.filter((c) => c.reviewStatus === 'VALIDATED').length;
   let scoreSum = 0;
@@ -74,7 +74,7 @@ function ScannedCopyListCard({
   onPress: () => void;
 }) {
   const correctionSummary = useMemo(() => buildCopyCorrectionSummary(exam, copy), [copy, exam]);
-  const isPending = copy.reviewStatus === 'DETECTED';
+  const isPending = copy.reviewStatus === 'DETECTED' || copy.reviewStatus === 'PENDING';
   return (
     <Pressable
       accessibilityRole="button"
@@ -145,7 +145,7 @@ export function ProfessorScannedCopiesListScreen({
   const copies = useMemo(() => {
     if (!exam?.scannedCopies) return [];
     let result = [...exam.scannedCopies];
-    if (filter === 'pending') result = result.filter((c) => c.reviewStatus === 'DETECTED');
+    if (filter === 'pending') result = result.filter((c) => c.reviewStatus === 'DETECTED' || c.reviewStatus === 'PENDING');
     if (filter === 'corrected') result = result.filter((c) => c.reviewStatus === 'CORRECTED');
     if (filter === 'validated') result = result.filter((c) => c.reviewStatus === 'VALIDATED');
     result.sort((a, b) => {
@@ -165,6 +165,16 @@ export function ProfessorScannedCopiesListScreen({
   const metrics = useMemo(() => calculateReviewMetrics(exam?.scannedCopies ?? []), [exam?.scannedCopies]);
   const pendingCount = metrics.pending;
 
+  useEffect(() => {
+    console.log(
+      '[ScanHistory] render state: examId=%s copyCount=%d filter=%s sort=%s',
+      exam?.id ?? 'none',
+      exam?.scannedCopies?.length ?? 0,
+      filter,
+      sort,
+    );
+  }, [exam?.id, exam?.scannedCopies?.length, filter, sort]);
+
   if (!exam) {
     return (
       <ScreenFrame compactHeader onBack={() => onNavigate('professor-exams')} title="Copies scannées">
@@ -182,12 +192,14 @@ export function ProfessorScannedCopiesListScreen({
   }
 
   const handleCopyPress = (copy: ScannedCopy) => {
+    console.log(
+      '[ScanHistory] open copy: copyId=%s examId=%s student=%s',
+      copy.id,
+      copy.examId,
+      copy.studentName,
+    );
     onSelectScannedCopy?.(copy);
-    if (copy.reviewStatus === 'DETECTED') {
-      onNavigate('professor-copy-review');
-    } else {
-      onNavigate('professor-copy-detail');
-    }
+    onNavigate('professor-copy-detail');
   };
 
   const getFilterLabel = () => {

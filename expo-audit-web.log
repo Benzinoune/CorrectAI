@@ -1,0 +1,11 @@
+
+> correctai@1.0.0 web
+> expo start --web --port 8091
+
+Starting project at C:\Users\abder\Desktop\CorrectAi - Copy - Copy\CorrectAi
+Using src/app as the root directory for Expo Router.
+React Compiler enabled
+Starting Metro Bundler
+
+Waiting on http://localhost:8091
+Logs for your project will appear below.

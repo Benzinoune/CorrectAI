@@ -259,11 +259,11 @@ function buildAnswerSheetHtml({ exam, questionCount, classValue, dateValue }: { 
     background: #fff;
     box-shadow: 0 4px 20px rgba(31,36,64,0.08);
   }
-  .corner { position: absolute; width: 14px; height: 14px; }
-  .corner-tl { top: 6px; left: 6px; border-top: 3px solid #121422; border-left: 3px solid #121422; }
-  .corner-tr { top: 6px; right: 6px; border-top: 3px solid #121422; border-right: 3px solid #121422; }
-  .corner-bl { bottom: 6px; left: 6px; border-bottom: 3px solid #121422; border-left: 3px solid #121422; }
-  .corner-br { bottom: 6px; right: 6px; border-bottom: 3px solid #121422; border-right: 3px solid #121422; }
+  .corner { position: absolute; width: 14px; height: 14px; background: #121422; }
+  .corner-tl { top: 6px; left: 6px; }
+  .corner-tr { top: 6px; right: 6px; }
+  .corner-bl { bottom: 6px; left: 6px; }
+  .corner-br { bottom: 6px; right: 6px; }
   .header { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding-bottom: 6px; }
   .brand { display: flex; flex-direction: column; gap: 2px; }
   .brand-logo { width: 74px; height: 22px; }
@@ -735,9 +735,7 @@ const styles = StyleSheet.create({
     left: 6,
     width: 14,
     height: 14,
-    borderTopWidth: 3,
-    borderLeftWidth: 3,
-    borderColor: colors.ink,
+    backgroundColor: colors.ink,
   },
   answerSheetCornerTopRight: {
     position: 'absolute',
@@ -745,9 +743,7 @@ const styles = StyleSheet.create({
     right: 6,
     width: 14,
     height: 14,
-    borderTopWidth: 3,
-    borderRightWidth: 3,
-    borderColor: colors.ink,
+    backgroundColor: colors.ink,
   },
   answerSheetCornerBottomLeft: {
     position: 'absolute',
@@ -755,9 +751,7 @@ const styles = StyleSheet.create({
     left: 6,
     width: 14,
     height: 14,
-    borderBottomWidth: 3,
-    borderLeftWidth: 3,
-    borderColor: colors.ink,
+    backgroundColor: colors.ink,
   },
   answerSheetCornerBottomRight: {
     position: 'absolute',
@@ -765,9 +759,7 @@ const styles = StyleSheet.create({
     right: 6,
     width: 14,
     height: 14,
-    borderBottomWidth: 3,
-    borderRightWidth: 3,
-    borderColor: colors.ink,
+    backgroundColor: colors.ink,
   },
   answerSheetPaperHeader: {
     flexDirection: 'row',
