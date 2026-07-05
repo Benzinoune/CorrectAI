@@ -254,7 +254,7 @@ function buildAnswerSheetHtml({ exam, questionCount, classValue, dateValue }: { 
     max-width: 700px;
     border: 1.5px solid #121422;
     border-radius: 8px;
-    padding: 14px;
+    padding: 14px 20px;
     position: relative;
     background: #fff;
     box-shadow: 0 4px 20px rgba(31,36,64,0.08);
@@ -288,7 +288,7 @@ function buildAnswerSheetHtml({ exam, questionCount, classValue, dateValue }: { 
   .qcol-num { color: #121422; font-weight: 800; text-align: left; }
   .qcol-bubbles { flex: 1; display: flex; flex-direction: row; align-items: center; justify-content: space-between; }
   .qcol-bubble { display: inline-block; border: 1px solid #B6BCF5; border-radius: 50%; background: #fff; }
-  .sig { padding-top: 2px; }
+  .sig { padding-top: 2px; margin-bottom: 8px; }
   .sig-label { color: #657084; font-size: 10px; font-weight: 800; }
   .sig-line { height: 14px; border-bottom: 1px solid #121422; margin-top: 2px; border-radius: 4px; }
   .footer { padding-top: 4px; display: flex; justify-content: space-between; }
@@ -316,8 +316,6 @@ function buildAnswerSheetHtml({ exam, questionCount, classValue, dateValue }: { 
       <p class="subtitle">${questionCount} Questions - Format A4</p>
     </div>
   </div>
-
-  <div class="divider"></div>
 
   <div class="form">
     <div class="form-row">
@@ -351,11 +349,6 @@ function buildAnswerSheetHtml({ exam, questionCount, classValue, dateValue }: { 
   <div class="sig">
     <span class="sig-label">N° DE FEUILLE / SIGNATURE</span>
     <div class="sig-line"></div>
-  </div>
-
-  <div class="footer">
-    <span class="footer-text">CorrectAI - Feuille de reponses</span>
-    <span class="footer-text">1 / 1</span>
   </div>
 </div>
 </body>
@@ -533,7 +526,8 @@ export function ProfessorAnswerSheetScreen({ examsData, classesData, onNavigate,
           style={[
             styles.answerSheetPaper,
             isHundredQuestions && {
-              padding: 6,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
               gap: 4,
             },
             { height: sheetHeight },
@@ -566,8 +560,6 @@ export function ProfessorAnswerSheetScreen({ examsData, classesData, onNavigate,
             </View>
           </View>
 
-          <View style={styles.answerSheetPaperDivider} />
-
           <View style={[styles.answerSheetFormSection, isHundredQuestions && { gap: 2 }]}>
             <View style={[styles.answerSheetFormRow, isHundredQuestions && { gap: 6 }]}>
               <AnswerSheetFormField label="Nom complet" style={styles.answerSheetFormHalf} />
@@ -596,14 +588,11 @@ export function ProfessorAnswerSheetScreen({ examsData, classesData, onNavigate,
             ))}
           </View>
 
-          <View style={[styles.answerSheetSignatureRow, isHundredQuestions && { paddingTop: 0, gap: 1 }]}>
+          <View style={[styles.answerSheetSignatureRow, isHundredQuestions && { paddingTop: 0, gap: 1, marginBottom: 8 }]}>
             <Text style={styles.answerSheetSignatureLabel}>N° DE FEUILLE / SIGNATURE</Text>
             <View style={styles.answerSheetSignatureLine} />
           </View>
 
-          <View style={[styles.answerSheetPaperFooter, isHundredQuestions && { paddingTop: 0 }]}>
-            <Text style={styles.answerSheetFooterBrand}>CorrectAI - Feuille de réponses</Text>
-          </View>
         </View>
 
         <View style={styles.answerSheetBottomBar}>
@@ -722,7 +711,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
-    padding: spacing.sm,
+              paddingVertical: 14,
+              paddingHorizontal: 20,
     gap: spacing.xs,
     boxShadow: '0 10px 18px rgba(31, 36, 64, 0.12)',
     elevation: 4,
@@ -914,6 +904,7 @@ const styles = StyleSheet.create({
   answerSheetSignatureRow: {
     gap: 2,
     paddingTop: 1,
+    marginBottom: 8,
   },
   answerSheetSignatureLabel: {
     color: colors.muted,
